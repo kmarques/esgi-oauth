@@ -1,0 +1,4 @@
+POST http://localhost:8080/register
+Content-Type: application/x-www-form-urlencoded
+
+name=MonApp&url=http://localhost:8081&redirect_success=http://localhost:8081/success&redirect_error=http://localhost:8081/error

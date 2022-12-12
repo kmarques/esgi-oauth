@@ -59,6 +59,10 @@ function findToken(array $criteria): array|null
 {
     return findOneRow('./data/token.data', $criteria);
 }
+function findUser(array $criteria): array|null
+{
+    return findOneRow('./data/user.data', $criteria);
+}
 
 function insertApp(array $app): array
 {
@@ -132,24 +136,52 @@ function authSuccess()
     header("Location: {$app['redirect_success']}?code={$codeEntity['code']}&state={$state}");
 }
 
-function token()
+function handleAuthorizationCode($app)
 {
-    ['client_id' => $clientId, 'code'=> $code, 'client_secret' => $secret, 'redirect_uri'=> $redirect] = $_GET;
-    if (($app = findApp(['client_id'=> $clientId, 'client_secret' => $secret, 'redirect_success' => $redirect])) === null) {
+    ['code'=> $code, 'redirect_uri'=> $redirect] = $_GET;
+    if ($app['redirect_success'] !== $redirect) {
         return http_response_code(401);
     }
-    if (($codeEntity = findCode(['code'=> $code, 'app_id'=> $clientId]))=== null) {
+    if (($codeEntity = findCode(['code'=> $code, 'app_id'=> $app['client_id']]))=== null) {
         return http_response_code(401);
     }
     if ((new \DateTimeImmutable())->setTimestamp($codeEntity['expiresAt']) < new \DateTimeImmutable()) {
         return http_response_code(401);
     }
+    $userId = $codeEntity['user_id'];
+    return $userId;
+}
+
+function handlePassword()
+{
+    ['username'=> $username, 'password'=> $password] = $_GET;
+    if (($user = findUser(['username'=> $username, 'password'=> $password]))=== null) {
+        return http_response_code(401);
+    }
+    $userId = $user['id'];
+    return $userId;
+}
+
+function token()
+{
+    ['client_id' => $clientId, 'client_secret' => $secret, 'grant_type' => $grantType] = $_GET;
+
+    if (($app = findApp(['client_id'=> $clientId, 'client_secret' => $secret])) === null) {
+        return http_response_code(401);
+    }
+
+    $userId = match ($grantType) {
+        'authorization_code' => handleAuthorizationCode($app),
+        'password' => handlePassword(),
+        'client_credentials' => null,
+        default => throw new \Exception(http_response_code(401))
+    };
 
     $token = insertToken([
         "token" => sha1(uniqid()),
         "app_id" => $clientId,
         "expiresIn"=> (new \DateTimeImmutable())->modify("+7 days")->getTimestamp(),
-        "user_id" => $codeEntity['user_id']
+        "user_id" => $userId
     ]);
 
     header('Content-Type: application/json');
@@ -179,14 +211,18 @@ function me()
     }
 
     $userId = $tokenEntity['user_id'];
+    $user = findUser(["id" => $userId]);
+    if (!$user) {
+        return http_response_code(401);
+    }
 
     // get user in database
 
     header('Content-Type: application/json');
     echo json_encode([
         'id' => $userId,
-        'name'=> 'Doe',
-        'firstname' => "John"
+        'name'=> $user['name'],
+        'firstname' => $user['firstname']
     ]);
 }
 

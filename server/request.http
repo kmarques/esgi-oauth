@@ -10,8 +10,13 @@ GET http://localhost:8080/auth?client_id=id_635913414ff1f4.96204950&response_typ
 GET http://localhost:8080/auth-success?state=123456789&client_id=id_635913414ff1f4.96204950
 
 ###
-GET http://localhost:8080/token?code=2cb33f744712809508816f9cc77d8f36cbe553c4&client_id=id_635913414ff1f4.96204950&client_secret=82eb52781cc74ce5564927d4e7223e07ab28f489&redirect_uri=http://localhost:8081/success
+GET http://localhost:8080/token?code=2cb33f744712809508816f9cc77d8f36cbe553c4&client_id=id_635913414ff1f4.96204950&client_secret=82eb52781cc74ce5564927d4e7223e07ab28f489&redirect_uri=http://localhost:8081/success&grant_type=authorization_code
+
+###
+GET http://localhost:8080/token?username=test&client_id=id_635913414ff1f4.96204950&client_secret=82eb52781cc74ce5564927d4e7223e07ab28f489&password=test&grant_type=password
+###
+GET http://localhost:8080/token?client_id=id_635913414ff1f4.96204950&client_secret=82eb52781cc74ce5564927d4e7223e07ab28f489&grant_type=client_credentials
 
 ###
 GET http://localhost:8080/me
-Authorization: Bearer 060afedcbc4ed0d964fae437508f5414c9c1b7d7
+Authorization: Bearer 7a8c0ff8c6b2bea1a57b864db574ed0a6562ecc8

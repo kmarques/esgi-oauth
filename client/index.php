@@ -12,7 +12,7 @@ function login()
     $_SESSION['state'] = uniqid();
 
     $queryParams = http_build_query([
-        'reponse_type'=> "code",
+        'response_type'=> "code",
         'state' => $_SESSION['state'],
         'scope' => 'basic',
         'client_id'=> OAUTH_CLIENTID,
@@ -28,7 +28,7 @@ function login()
     echo "<br>";
 
     $queryParams = http_build_query([
-        'reponse_type'=> "code",
+        'response_type'=> "code",
         'state' => $_SESSION['state'],
         'scope' => '',
         'client_id'=> FB_CLIENTID,
